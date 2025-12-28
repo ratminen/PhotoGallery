@@ -29,6 +29,14 @@ class PhotoViewModel : ViewModel() {
             }
         }
     }
+    fun search(query: String) {
+        val filtered = if (query.isBlank()) {
+            originalPhotos
+        } else {
+            originalPhotos.filter { it.title.contains(query, ignoreCase = true) }
+        }
+        _photos.value = filtered
+    }
     fun reload() {
         _photos.value = originalPhotos
     }

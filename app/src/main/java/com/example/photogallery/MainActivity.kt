@@ -66,8 +66,8 @@ fun PhotoGalleryScreen(viewModel: PhotoViewModel, modifier: Modifier) {
         val photos by viewModel.photos.collectAsState()
         Column(modifier= Modifier){
             PhotoGalleryTopBar(
-                onSearch = { query -> println("Searching: $query") },
-                onStartPolling = { println("Searching:onStartPolling ") },
+                onSearch = { query -> viewModel.search(query) },
+                onStartPolling = { viewModel.reload() },
                 onMenuAction1 = { println("Searching:onStartPolling ") },
                 onMenuAction2 = { println("Searching:onStartPolling ") }
             )
