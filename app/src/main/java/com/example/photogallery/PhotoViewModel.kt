@@ -11,19 +11,25 @@ import kotlinx.coroutines.launch
 class PhotoViewModel : ViewModel() {
     private val _photos = MutableStateFlow<List<Photo>>(emptyList())
     val photos = _photos.asStateFlow()
+    private var originalPhotos: List<Photo> = emptyList()
 
     init {
-        loadPhotos()
+        loadInteresting()
     }
 
-    private fun loadPhotos() {
+    fun loadInteresting() {
         viewModelScope.launch {
             try {
                 val response = FlickrRetrofit.api.getInterestingPhotos()
-                _photos.value = response.photos.photo.filter { it.url != null }
+                val list = response.photos.photo.filter { it.url != null }
+                originalPhotos = list
+                _photos.value = list
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
+    }
+    fun reload() {
+        _photos.value = originalPhotos
     }
 }
