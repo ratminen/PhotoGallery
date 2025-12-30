@@ -6,8 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +47,8 @@ import coil.compose.AsyncImage
 import com.example.photogallery.flickr.Photo
 import com.example.photogallery.ui.theme.PhotoGalleryTheme
 import kotlin.getValue
+import androidx.compose.runtime.livedata.observeAsState
+
 
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<PhotoViewModel>()
@@ -54,7 +58,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             PhotoGalleryTheme {
                 Scaffold(modifier = Modifier.fillMaxSize().background(color = Color.Gray)) { innerPadding ->
-                    PhotoGalleryScreen(viewModel,modifier = Modifier.padding(innerPadding))
+                    PhotoGalleryScreen(viewModel,innerPadding)
                 }
             }
         }
@@ -62,38 +66,37 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PhotoGalleryScreen(viewModel: PhotoViewModel, modifier: Modifier) {
-        val photos by viewModel.photos.collectAsState()
-        Column(modifier= Modifier){
-            PhotoGalleryTopBar(
-                onSearch = { query -> viewModel.search(query) },
-                onStartPolling = { viewModel.reload() },
-                onMenuAction1 = { println("Searching:onStartPolling ") },
-                onMenuAction2 = { println("Searching:onStartPolling ") }
-            )
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(120.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(photos) { photo ->
-                    PhotoItem(photo)
-                }
+fun PhotoGalleryScreen(viewModel: PhotoViewModel, padding: PaddingValues) {
+
+    val photos by viewModel.searchResults.observeAsState(listOf())
+    var showFavorites by remember { mutableStateOf(false) }
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(120.dp),
+        contentPadding = padding
+    ) {
+        items(photos) { photo ->
+            PhotoItem(photo) {
+                viewModel.addToFavorites(it)
             }
         }
     }
 
+}
+
     @Composable
-    fun PhotoItem(photo: Photo) {
+    fun PhotoItem(photo: Photo, onClick: (Photo) -> Unit) {
         Card(
             modifier = Modifier
                 .padding(4.dp)
                 .fillMaxWidth()
+                .clickable { onClick(photo) }
         ) {
             AsyncImage(
                 model = photo.url,
                 contentDescription = photo.title,
                 modifier = Modifier
                     .aspectRatio(1f)
+                    .fillMaxWidth()
             )
         }
     }
