@@ -8,7 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 object FlickrRetrofit {
-    private const val BASE_URL = "https://www.flickr.com/"
+    private const val BASE_URL = "https://api.flickr.com/services/"
 
     private val logger = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
